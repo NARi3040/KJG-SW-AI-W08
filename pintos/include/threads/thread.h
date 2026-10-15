@@ -37,11 +37,11 @@ typedef int tid_t;
  * 그림으로 나타내면 다음과 같음:
  *
  *      4 kB +---------------------------------+
- *           |          kernel stack           |
+ *           |            커널 스택            |
  *           |                |                |
  *           |                |                |
  *           |                V                |
- *           |         grows downward          |
+ *           |           아래로 자람           |
  *           |                                 |
  *           |                                 |
  *           |                                 |
@@ -115,7 +115,7 @@ struct thread {
 
 #ifdef USERPROG
 	/* userprog/process.c가 소유함. */
-	uint64_t *pml4;                     /* Page map level 4 */
+	uint64_t *pml4;                     /* 페이지 맵 레벨 4(Page map level 4) */
 #endif
 #ifdef VM
 	/* 스레드가 소유한 전체 가상 메모리의 테이블. */
