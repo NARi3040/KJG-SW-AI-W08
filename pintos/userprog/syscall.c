@@ -36,11 +36,23 @@ syscall_init (void) {
 	write_msr(MSR_SYSCALL_MASK,
 			FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
 }
-
+//putbuf (const char *buffer, size_t n)
 /* 시스템 콜의 메인 인터페이스 */
 void
 syscall_handler (struct intr_frame *f UNUSED) {
 	// TODO: 여기에 구현을 작성할 것.
 	printf ("system call!\n");
+	// f->R.rax;
+	int fd = f->R.rdi;
+	switch (f->R.rax)
+	{
+	case SYS_WRITE:
+		if (fd == 1) {
+			putbuf(f->R.rsi, f->R.rdx);
+		}
+		break;
+	default:
+		break;
+	}
 	thread_exit ();
 }

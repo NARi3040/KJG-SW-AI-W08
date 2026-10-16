@@ -154,7 +154,7 @@ putchar (int c) {
 
 	return c;
 }
-
+
 /* vprintf()용 도우미 함수(helper function). */
 static void
 vprintf_helper (char c, void *char_cnt_) {

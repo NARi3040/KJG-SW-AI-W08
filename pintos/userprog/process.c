@@ -22,6 +22,8 @@
 #include "vm/vm.h"
 #endif
 
+#include "devices/timer.h"
+
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
 static void initd (void *f_name);
@@ -203,6 +205,8 @@ process_wait (tid_t child_tid UNUSED) {
 	/* XXX: 힌트) process_wait (initd)를 하면 pintos가 종료되므로,
 	 * XXX:       process_wait를 구현하기 전에 여기에 무한 루프를
 	 * XXX:       추가해 두기를 권장함. */
+	thread_set_priority(PRI_MIN);
+	// timer_sleep (TIMER_FREQ * 5);
 	return -1;
 }
 
