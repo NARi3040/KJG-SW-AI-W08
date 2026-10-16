@@ -171,7 +171,7 @@ list_prev (struct list_elem *elem) {
  *      e = list_prev (e))
  * {
  *     struct foo *f = list_entry (e, struct foo, elem);
- *     ...do something with f...
+ *     ...f 로 무언가를 함...
  * }
  * @endcode
  *
@@ -303,7 +303,7 @@ list_push_back (struct list *list, struct list_elem *elem) {
  * ** 이렇게 하지 말 것 **
  * for (e = list_begin (&list); e != list_end (&list); e = list_next (e))
  * {
- *     ...do something with e...
+ *     ...e 로 무언가를 함...
  *     list_remove (e);
  * }
  * ** 이렇게 하지 말 것 **
@@ -313,7 +313,7 @@ list_push_back (struct list *list, struct list_elem *elem) {
  * @code
  * for (e = list_begin (&list); e != list_end (&list); e = list_remove (e))
  * {
- *     ...do something with e...
+ *     ...e 로 무언가를 함...
  * }
  * @endcode
  *
@@ -323,7 +323,7 @@ list_push_back (struct list *list, struct list_elem *elem) {
  * while (!list_empty (&list))
  * {
  *     struct list_elem *e = list_pop_front (&list);
- *     ...do something with e...
+ *     ...e 로 무언가를 함...
  * }
  * @endcode
  *

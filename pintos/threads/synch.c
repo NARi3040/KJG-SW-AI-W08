@@ -1,6 +1,5 @@
-/* This file is derived from source code for the Nachos
-   instructional operating system.  The Nachos copyright notice
-   is reproduced in full below. */
+/* 이 파일은 Nachos 교육용 운영체제의 소스 코드에서 파생되었음.
+   Nachos 저작권 고지는 아래에 전문 그대로 수록되어 있음. */
 
 /* Copyright (c) 1992-1996 The Regents of the University of California.
    All rights reserved.
