@@ -23,6 +23,7 @@
 #endif
 
 #include "devices/timer.h"
+#define MAX_ARGS 64
 
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
@@ -336,11 +337,15 @@ load (const char *file_name, struct intr_frame *if_) {
 	if (t->pml4 == NULL)
 		goto done;
 	process_activate (thread_current ());
+ // asadf adfasf asdf
+	char *token, *save_ptr;
+
+	token = strtok_r (file_name, " ", &save_ptr); 
 
 	/* 실행 파일을 엶. */
-	file = filesys_open (file_name);
+	file = filesys_open (token);
 	if (file == NULL) {
-		printf ("load: %s: open failed\n", file_name);
+		printf ("load: %s: open failed\n", token);
 		goto done;
 	}
 
@@ -352,7 +357,7 @@ load (const char *file_name, struct intr_frame *if_) {
 			|| ehdr.e_version != 1
 			|| ehdr.e_phentsize != sizeof (struct Phdr)
 			|| ehdr.e_phnum > 1024) {
-		printf ("load: %s: error loading executable\n", file_name);
+		printf ("load: %s: error loading executable\n", token);
 		goto done;
 	}
 
@@ -410,16 +415,12 @@ load (const char *file_name, struct intr_frame *if_) {
 	}
 
 	/* 스택을 설정함. */
-	if (!setup_stack (if_))
+	if (!setup_stack(if_))
 		goto done;
 
 	/* 시작 주소. */
 	if_->rip = ehdr.e_entry;
-
-	/* TODO: 여기에 코드를 작성할 것.
-	 * TODO: 인자 전달(argument passing)을 구현할 것 (project2/argument_passing.html
-	 * TODO: 참고). */
-
+	
 	success = true;
 
 done:

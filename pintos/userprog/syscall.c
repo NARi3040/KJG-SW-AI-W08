@@ -46,13 +46,16 @@ syscall_handler (struct intr_frame *f UNUSED) {
 	int fd = f->R.rdi;
 	switch (f->R.rax)
 	{
-	case SYS_WRITE:
-		if (fd == 1) {
-			putbuf(f->R.rsi, f->R.rdx);
-		}
-		break;
-	default:
-		break;
+		case SYS_EXIT:
+
+			break;
+		case SYS_WRITE:
+			if (fd == 1) {
+				putbuf(f->R.rsi, f->R.rdx);
+			}
+			break;
+		default:
+			break;
 	}
 	thread_exit ();
 }
