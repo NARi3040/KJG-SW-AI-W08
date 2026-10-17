@@ -337,13 +337,21 @@ load (const char *file_name, struct intr_frame *if_) {
 	if (t->pml4 == NULL)
 		goto done;
 	process_activate (thread_current ());
- // asadf adfasf asdf
-	char *token, *save_ptr;
+	
+	char *argv[MAX_ARGS];
+	int argc = 0;
 
-	token = strtok_r (file_name, " ", &save_ptr); 
+	char *token, *save_ptr;
+	for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr)) {
+		argv[argc++] = token;
+	}
+	
+	for (int i = 0; i < argc; i++) {
+		printf("%s\n", argv[i]);
+	}
 
 	/* 실행 파일을 엶. */
-	file = filesys_open (token);
+	file = filesys_open (argv[0]);
 	if (file == NULL) {
 		printf ("load: %s: open failed\n", token);
 		goto done;
@@ -357,7 +365,7 @@ load (const char *file_name, struct intr_frame *if_) {
 			|| ehdr.e_version != 1
 			|| ehdr.e_phentsize != sizeof (struct Phdr)
 			|| ehdr.e_phnum > 1024) {
-		printf ("load: %s: error loading executable\n", token);
+		printf ("load: %s: error loading executable\n", argv[0]);
 		goto done;
 	}
 
@@ -420,6 +428,8 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	/* 시작 주소. */
 	if_->rip = ehdr.e_entry;
+
+
 	
 	success = true;
 
