@@ -41,13 +41,11 @@ syscall_init (void) {
 void
 syscall_handler (struct intr_frame *f UNUSED) {
 	// TODO: 여기에 구현을 작성할 것.
-	printf ("system call!\n");
-	// f->R.rax;
 	int fd = f->R.rdi;
 	switch (f->R.rax)
 	{
 		case SYS_EXIT:
-
+			thread_exit ();
 			break;
 		case SYS_WRITE:
 			if (fd == 1) {
@@ -57,5 +55,4 @@ syscall_handler (struct intr_frame *f UNUSED) {
 		default:
 			break;
 	}
-	thread_exit ();
 }
