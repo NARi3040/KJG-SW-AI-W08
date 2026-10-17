@@ -18,6 +18,8 @@
 #include "threads/mmu.h"
 #include "threads/vaddr.h"
 #include "intrinsic.h"
+#include "threads/synch.h"
+
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -56,8 +58,25 @@ process_create_initd (const char *file_name) {
 		return TID_ERROR;
 	strlcpy (fn_copy, file_name, PGSIZE);
 
+	/**
+	 * strtok_r로 실행파일 이름용 복사본 만들기
+	 * 실행과 인자 전달 사용할 전체 명렬줄 fn_copy는 유지
+	 * 현재 구현은 스레드 이름 크기에 맞춰 최대 15문자만 보관중(임시)
+	 */
+	char name_copy[16];
+	char *save_ptr;
+
+	strlcpy(name_copy, file_name, sizeof name_copy);
+	char *program_name = strtok_r(name_copy, " ", &save_ptr);	/* 명령줄 첫 단어를 최초 프로세스 이름으로 */
+
+	if (program_name == NULL) {		/* 이름을 얻지 못했다면 실행에 사용할 복사본을 해제하고 실패처리 */
+		palloc_free_page(fn_copy);
+		return TID_ERROR;
+	}
+	
+
 	/* FILE_NAME을 실행할 새 스레드를 생성함. */
-	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
+	tid = thread_create (program_name, PRI_DEFAULT, initd, fn_copy);
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
 	return tid;
@@ -227,7 +246,7 @@ process_wait (tid_t child_tid) {
 	return -1;
 }
 
-/* 프로세스를 종료함. 이 함수는 thread_exit ()가 호출함. */
+/* 프로세스를 종료함. 이 함수는 thread_exit()가 호출함. */
 void
 process_exit (void) {
 	struct thread *curr = thread_current ();
@@ -235,6 +254,14 @@ process_exit (void) {
 	 * TODO: 프로세스 종료 메시지를 구현할 것 (project2/process_termination.html
 	 * TODO: 참고).
 	 * TODO: 프로세스 리소스 정리(cleanup)도 여기서 구현하기를 권장함. */
+	/* 현재 종료 기록은 SYS_EXIT 처리 중에만 생성
+	* 커널 스레드 종료나 예외 종료 등에서는 기록이 없을 수 있으므로
+	* 기록이 존재할 때만 종료 상태를 읽고 출력*/
+	if (curr->exit_info != NULL) {	
+		printf("%s: exit(%d)\n", curr->name, curr->exit_info->status);
+	}
+	/* 종료 기록의 유무와 관계없이 현재 프로세스 주소 공간 정리
+	별도로 할당한 exit_info의 해제는 아직 구현x */
 	sema_up(&curr->process_sema);
 	process_cleanup (); 
 }
