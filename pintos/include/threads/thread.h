@@ -83,6 +83,7 @@ typedef int tid_t;
  * 배타적이기 때문임: ready 상태의 스레드만 run queue에 있고,
  * blocked 상태의 스레드만 세마포어 대기 리스트에 있음. */
 
+ struct exit_info;		// 종료 기록의 구조체 이름 선언
 
 /**
  * @brief 커널 스레드 또는 유저 프로세스를 나타내는 구조체 (TCB)
@@ -116,6 +117,7 @@ struct thread {
 #ifdef USERPROG
 	/* userprog/process.c가 소유함. */
 	uint64_t *pml4;                     /* 페이지 맵 레벨 4(Page map level 4) */
+	struct exit_info *exit_info;	/* 내 종료 기록 주소 */
 #endif
 #ifdef VM
 	/* 스레드가 소유한 전체 가상 메모리의 테이블. */

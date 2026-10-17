@@ -7,6 +7,8 @@
 #include "userprog/gdt.h"
 #include "threads/flags.h"
 #include "intrinsic.h"
+#include "userprog/process.h"
+#include "threads/malloc.h"
 
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
@@ -46,9 +48,21 @@ syscall_handler (struct intr_frame *f UNUSED) {
 	int fd = f->R.rdi;
 	switch (f->R.rax)
 	{
-		case SYS_EXIT:
+		case SYS_EXIT: {		/* exit(status) 첫 인자는 rdi로 전달 */
+			int status = (int)f->R.rdi;
+			struct thread *cur = thread_current();
 
-			break;
+			struct exit_info *record = malloc(sizeof(struct exit_info));		/* 종료 상태 저장할 실제 메모리 공간 할당 */
+			if (record == NULL) {		/* 할당 실패하면 기록에 접근하지 않고 현재 스레드 종료 */
+				thread_exit();
+			}
+			
+			record->status = status;		// 구조체 안에 종료 상태 저장
+
+			cur->exit_info = record;		// process_exit()에서도 같은 기록 찾을 수 있도록 현재 스레드에 구조체 주소 저장
+
+			thread_exit();		/* 내부에서 process_exit() 호출해 자원 정리하고 현재 스레드 종료 */
+		}
 		case SYS_WRITE:
 			if (fd == 1) {
 				putbuf(f->R.rsi, f->R.rdx);
@@ -57,5 +71,4 @@ syscall_handler (struct intr_frame *f UNUSED) {
 		default:
 			break;
 	}
-	thread_exit ();
 }
