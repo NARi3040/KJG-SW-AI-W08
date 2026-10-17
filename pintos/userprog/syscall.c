@@ -43,8 +43,6 @@ syscall_init (void) {
 void
 syscall_handler (struct intr_frame *f UNUSED) {
 	// TODO: 여기에 구현을 작성할 것.
-	printf ("system call!\n");
-	// f->R.rax;
 	int fd = f->R.rdi;
 	switch (f->R.rax)
 	{

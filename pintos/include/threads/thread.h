@@ -5,6 +5,7 @@
 #include <list.h>
 #include <stdint.h>
 #include "threads/interrupt.h"
+#include "threads/synch.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -111,8 +112,13 @@ struct thread {
 	/* priority donation용. */
 	int init_priority;                  /* donation 받기 전 원래 우선순위. */
 	struct lock *wait_on_lock;          /* 현재 획득을 기다리고 있는 락의 주소 */
-    struct list donations;              /* 자신에게 우선순위를 기부한 스레드들의 리스트 */
-    struct list_elem donation_elem;     /* 기부자 리스트(donations)에 삽입될 리스트 엘리먼트 */
+	struct list donations;              /* 자신에게 우선순위를 기부한 스레드들의 리스트 */
+	struct list_elem donation_elem;     /* 기부자 리스트(donations)에 삽입될 리스트 엘리먼트 */
+	
+	/* user program */
+	struct semaphore process_sema;
+	struct list children;
+	struct list_elem process_elem;
 
 #ifdef USERPROG
 	/* userprog/process.c가 소유함. */
