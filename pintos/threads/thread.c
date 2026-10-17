@@ -267,8 +267,7 @@ thread_print_stats (void) {
  *       새 스레드의 priority가 현재 스레드보다 높으면 반환 전에 CPU를 선점함
  */
 tid_t
-thread_create (const char *name, int priority,
-		thread_func *function, void *aux) {
+thread_create (const char *name, int priority, thread_func *function, void *aux) {
 	struct thread *t;
 	tid_t tid;
 

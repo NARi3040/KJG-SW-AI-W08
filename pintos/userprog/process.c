@@ -25,6 +25,8 @@
 #include "devices/timer.h"
 #define MAX_ARGS 64
 
+#define ALIGN sizeof(double)
+
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
 static void initd (void *f_name);
@@ -342,18 +344,19 @@ load (const char *file_name, struct intr_frame *if_) {
 	int argc = 0;
 
 	char *token, *save_ptr;
-	for (token = strtok_r (file_name, " ", &save_ptr); token != NULL; token = strtok_r (NULL, " ", &save_ptr)) {
+	for (token = strtok_r (file_name, " ", &save_ptr); token != NULL && argc < MAX_ARGS-1; token = strtok_r (NULL, " ", &save_ptr)) {
 		argv[argc++] = token;
 	}
-	
-	for (int i = 0; i < argc; i++) {
-		printf("%s\n", argv[i]);
+	argv[argc] = NULL;
+
+	if (argc <= 0 || argc > MAX_ARGS) {
+		goto done;
 	}
 
 	/* 실행 파일을 엶. */
 	file = filesys_open (argv[0]);
 	if (file == NULL) {
-		printf ("load: %s: open failed\n", token);
+		printf ("load: %s: open failed\n", argv[0]);
 		goto done;
 	}
 
@@ -429,8 +432,29 @@ load (const char *file_name, struct intr_frame *if_) {
 	/* 시작 주소. */
 	if_->rip = ehdr.e_entry;
 
+	uint8_t *ptr = (uint8_t *) if_->rsp;
 
-	
+	for (int i = argc-1; i >= 0; i--) {
+		size_t len = strlen(argv[i]) + 1;
+		ptr -= len;
+		memcpy(ptr, argv[i], len);
+		argv[i] = (char *)ptr; // 커널 메모리를 스택 메모리로 변경
+	}
+
+	// 8의 배수의 주소로 내림
+	ptr = (void *) ((uintptr_t) ptr & ~(uintptr_t) 7);
+
+	ptr -= (argc + 1) * sizeof(char *);
+	memcpy(ptr, argv, (argc + 1) * sizeof(char *));
+
+    uint8_t *argv_addr = ptr;
+    ptr -= sizeof(void *);
+    memset(ptr, 0, sizeof(void *));
+
+    if_->R.rdi = argc;
+    if_->R.rsi = (uint64_t) argv_addr;
+    if_->rsp = (uintptr_t) ptr;
+
 	success = true;
 
 done:
